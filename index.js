@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import userRoutes from "./routes/users.js";
+import categoriesRoutes from "./routes/categories.js";
 
 const app = express();
 dotenv.config();
@@ -16,6 +17,7 @@ app.get("/", (req, res) => {
   res.send({ message: "Hello World!" });
 });
 app.use("/users", userRoutes);
+app.use("/categories", categoriesRoutes);
 
 const PORT = process.env.PORT || 5001;
 
