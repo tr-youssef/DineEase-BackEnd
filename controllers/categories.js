@@ -2,13 +2,13 @@ import jwt from "jsonwebtoken";
 import Categories from "../models/categories.js";
 
 export const getCategories = async (req, res) => {
-  const token = req.headers.authorization.split(" ")[1];
-  if (token) {
-    let decodedData = jwt.verify(token, process.env.HASHCODE);
-    req.userId = decodedData?.id;
-    req.restaurantId = decodedData?.restaurantId;
-  }
   try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
     const categories = await Categories.find({
       restaurantId: req.restaurantId,
     });
@@ -19,14 +19,14 @@ export const getCategories = async (req, res) => {
 };
 
 export const getCategoryById = async (req, res) => {
-  const { id } = req.params;
-  const token = req.headers.authorization.split(" ")[1];
-  if (token) {
-    let decodedData = jwt.verify(token, process.env.HASHCODE);
-    req.userId = decodedData?.id;
-    req.restaurantId = decodedData?.restaurantId;
-  }
   try {
+    const { id } = req.params;
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
     const category = await Categories.findOne({
       _id: id,
       restaurantId: req.restaurantId,
@@ -38,14 +38,14 @@ export const getCategoryById = async (req, res) => {
 };
 
 export const addCategory = async (req, res) => {
-  const newCategory = req.body;
-  const token = req.headers.authorization.split(" ")[1];
-  if (token) {
-    let decodedData = jwt.verify(token, process.env.HASHCODE);
-    req.userId = decodedData?.id;
-    req.restaurantId = decodedData?.restaurantId;
-  }
   try {
+    const newCategory = req.body;
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
     let categoryCreated = await Categories.create({
       name: newCategory.name,
       restaurantId: req.restaurantId,
@@ -57,14 +57,14 @@ export const addCategory = async (req, res) => {
 };
 
 export const deleteCategory = async (req, res) => {
-  const { id } = req.params;
-  const token = req.headers.authorization.split(" ")[1];
-  if (token) {
-    let decodedData = jwt.verify(token, process.env.HASHCODE);
-    req.userId = decodedData?.id;
-    req.restaurantId = decodedData?.restaurantId;
-  }
   try {
+    const { id } = req.params;
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
     const categoryDeleted = await Categories.deleteOne({
       _id: id,
       restaurantId: req.restaurantId,
@@ -76,15 +76,15 @@ export const deleteCategory = async (req, res) => {
 };
 
 export const updateCategory = async (req, res) => {
-  const { id } = req.params;
-  const token = req.headers.authorization.split(" ")[1];
-  if (token) {
-    let decodedData = jwt.verify(token, process.env.HASHCODE);
-    req.userId = decodedData?.id;
-    req.restaurantId = decodedData?.restaurantId;
-  }
-  const newCategory = req.body;
   try {
+    const { id } = req.params;
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    const newCategory = req.body;
     const oldCategory = await Categories.updateOne(
       {
         _id: id,

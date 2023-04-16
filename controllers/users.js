@@ -6,8 +6,8 @@ import User from "../models/users.js";
 dotenv.config();
 
 export const signin = async (req, res) => {
-  const { email, password } = req.body;
   try {
+    const { email, password } = req.body;
     const existingUser = await User.findOne({ email });
     if (!existingUser) return res.status(404).json({ message: "User doesn't exists." });
     const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
@@ -19,8 +19,8 @@ export const signin = async (req, res) => {
   }
 };
 export const signup = async (req, res) => {
-  const { email, password, confirmPassword, firstName, lastName, restaurantId } = req.body;
   try {
+    const { email, password, confirmPassword, firstName, lastName, restaurantId } = req.body;
     const existingUser = await User.findOne({ email });
 
     if (existingUser) return res.status(400).json({ message: "User already exists." });
