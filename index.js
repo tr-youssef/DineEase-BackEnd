@@ -12,6 +12,9 @@ dotenv.config();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+
+app.use(express.static("public"));
+app.use("/assets", express.static("images"));
 app.use(cors());
 
 app.get("/", (req, res) => {
