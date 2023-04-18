@@ -42,3 +42,19 @@ export const signup = async (req, res) => {
     res.status(500).json({ message: "Something went wrong.", error });
   }
 };
+
+export const addEmployee = async (req, res) => {
+  try {
+    const newEmployee = req.body;
+    let employeeCreated = await Employee.create({
+      firstName: newEmployee.name,
+      lastName: newEmployee.price,
+      email: newEmployee.picture,
+      role: newEmployee.description,
+      restaurantId: newEmployee.restaurantId,
+    });
+    res.status(201).json(employeeCreated);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
