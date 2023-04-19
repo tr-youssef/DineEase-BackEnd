@@ -12,6 +12,7 @@ export const signin = async (req, res) => {
     if (!existingUser) return res.status(404).json({ message: "User doesn't exists." });
     const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
     if (!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
+    if (!existingUser.active) return res.status(400).json({ message: "User inactive" });
     const token = jwt.sign({ email: existingUser.email, id: existingUser._id, restaurantId: existingUser.restaurantId }, process.env.PRIVATE_KEY, { expiresIn: "12h" });
     res.status(200).json({ result: existingUser, token });
   } catch (error) {
@@ -20,20 +21,20 @@ export const signin = async (req, res) => {
 };
 export const signup = async (req, res) => {
   try {
-    const { email, password, confirmPassword, firstName, lastName, restaurantId } = req.body;
+    const { email, password, confirmPassword, firstName, lastName, role, restaurantId } = req.body;
     const existingUser = await User.findOne({ email });
 
-    if (existingUser)
-      return res.status(400).json({ message: "User already exists." });
+    if (existingUser) return res.status(400).json({ message: "User already exists." });
 
-    if (password !== confirmPassword)
-      return res.status(400).json({ message: "passwords don't match." });
+    if (password !== confirmPassword) return res.status(400).json({ message: "passwords don't match." });
     const hashedPassword = await bcrypt.hash(password, 12);
     const result = await User.create({
       email,
       password: hashedPassword,
       firstName,
       lastName,
+      role,
+      active: true,
       restaurantId,
     });
     const token = jwt.sign({ email: result.email, id: result._id, restaurantId: result.restaurantId }, process.env.PRIVATE_KEY, {
