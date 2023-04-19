@@ -40,7 +40,9 @@ export const signup = async (req, res) => {
     }
 
     const salt = await bcrypt.genSalt(10);
-    newEmployee.password = await bcrypt.hash(newEmployee.password.toString(), salt);
+    if (newEmployee.password) {
+      newEmployee.password = await bcrypt.hash(newEmployee.password.toString(), salt);
+    }
     await newEmployee.save();
 
     const payload = {
@@ -67,6 +69,23 @@ export const signup = async (req, res) => {
     res.status(403).json({
       error: error.message,
     });
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    const users = await Users.find({
+      restaurantId: req.restaurantId,
+    });
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
