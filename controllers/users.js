@@ -22,8 +22,7 @@ export const signin = async (req, res) => {
 
 export const signup = async (req, res) => {
   const newEmployee = new UserModel({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
+    fullName: req.body.fullName,
     role: req.body.role,
     email: req.body.email,
     password: req.body.password,
