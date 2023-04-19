@@ -22,22 +22,11 @@ export const signin = async (req, res) => {
 
 
 export const signup = async (req, res) => {
-  const newEmployee = new UserModel({
-    fullName: req.body.fullName,
-    role: req.body.role,
-    email: req.body.email,
-    password: req.body.password,
-  });
-
   try {
     const { email, password, confirmPassword, firstName, lastName, role, restaurantId } = req.body;
     const existingUser = await User.findOne({ email });
 
-    const payload = {
-      user: {
-        id: newEmployee.id,
-      },
-    };
+    if (existingUser) return res.status(400).json({ message: "User already exists." });
 
     if (password !== confirmPassword) return res.status(400).json({ message: "passwords don't match." });
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -50,6 +39,12 @@ export const signup = async (req, res) => {
       active: true,
       restaurantId,
     });
+    const token = jwt.sign({ email: result.email, id: result._id, restaurantId: result.restaurantId }, process.env.PRIVATE_KEY, {
+      expiresIn: "12h",
+    });
+    res.status(200).json({ result: result, token });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong.", error });
   }
 };
 
