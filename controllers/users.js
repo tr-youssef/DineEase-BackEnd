@@ -12,6 +12,7 @@ export const signin = async (req, res) => {
     if (!existingUser) return res.status(404).json({ message: "User doesn't exists." });
     const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
     if (!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
+    if (!existingUser.active) return res.status(400).json({ message: "User inactive" });
     const token = jwt.sign({ email: existingUser.email, id: existingUser._id, restaurantId: existingUser.restaurantId }, process.env.PRIVATE_KEY, { expiresIn: "12h" });
     res.status(200).json({ result: existingUser, token });
   } catch (error) {
@@ -29,21 +30,8 @@ export const signup = async (req, res) => {
   });
 
   try {
-    let existingEmployee = await UserModel.findOne({
-      email: newEmployee.email,
-    });
-
-    if (existingEmployee) {
-      return res.status(400).json({
-        msg: 'User Already Exists',
-      });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    if (newEmployee.password) {
-      newEmployee.password = await bcrypt.hash(newEmployee.password.toString(), salt);
-    }
-    await newEmployee.save();
+    const { email, password, confirmPassword, firstName, lastName, role, restaurantId } = req.body;
+    const existingUser = await User.findOne({ email });
 
     const payload = {
       user: {
@@ -51,23 +39,16 @@ export const signup = async (req, res) => {
       },
     };
 
-    jwt.sign(
-      payload,
-      'randomString',
-      {
-        expiresIn: '12h',
-      },
-      (err, token) => {
-        if (err) throw err;
-        res.status(200).json({
-          token,
-        });
-      }
-    );
-  } catch (error) {
-    console.error(error);
-    res.status(403).json({
-      error: error.message,
+    if (password !== confirmPassword) return res.status(400).json({ message: "passwords don't match." });
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const result = await User.create({
+      email,
+      password: hashedPassword,
+      firstName,
+      lastName,
+      role,
+      active: true,
+      restaurantId,
     });
   }
 };

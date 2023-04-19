@@ -6,12 +6,16 @@ import dotenv from "dotenv";
 import usersRouter from "./routes/users.js";
 import categoriesRoutes from "./routes/categories.js";
 import itemsRoutes from "./routes/items.js";
+import uploadRoutes from "./routes/upload.js";
 
 const app = express();
 dotenv.config();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+
+app.use(express.static("public"));
+app.use("/assets", express.static("images"));
 app.use(cors());
 
 app.get("/", (req, res) => {
@@ -20,6 +24,7 @@ app.get("/", (req, res) => {
 app.use("/users", usersRouter);
 app.use("/categories", categoriesRoutes);
 app.use("/items", itemsRoutes);
+app.use("/upload", uploadRoutes);
 
 const PORT = process.env.PORT || 5001;
 

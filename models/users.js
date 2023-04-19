@@ -1,15 +1,17 @@
 import mongoose from "mongoose";
 
 const userSchema = mongoose.Schema({
-  fullName: { type: String, required: [true, "Full Name is required"] },
-  role: { type: String, required: [true, "Role is required"]},
-  email: { type: String, required: [true, "Email is required"] },
-  password: { type: String, required: [true, "Password is required"] },
-  // restaurantId: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "Restaurant",
-  //   required: [true, "RestaurantId is required"],
-  // },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true },
+  role: { type: String, require: true },
+  active: { type: Boolean, require: true },
+  password: { type: String, required: true },
+  restaurantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Restaurant",
+    require: [true, "Restaurant is required"],
+  },
 });
 
 export const UserModel = mongoose.model('User', userSchema);
