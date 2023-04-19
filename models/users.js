@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 
 const userSchema = mongoose.Schema({
-  firstName: { type: String, required: [true, "FirstName is required"] },
-  lastName: { type: String, required: [true, "LastName is required"] },
-  email: { type: String, required: [true, "Email is required"] },
-  password: { type: String, required: [true, "Password is required"] },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true },
+  role: { type: String, require: true },
+  active: { type: Boolean, require: true },
+  password: { type: String, required: true },
   restaurantId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Restaurant",
-    required: [true, "RestaurantId is required"],
+    require: [true, "Restaurant is required"],
   },
 });
 
