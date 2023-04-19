@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-import userRoutes from "./routes/users.js";
+import usersRouter from "./routes/users.js";
 import categoriesRoutes from "./routes/categories.js";
 import itemsRoutes from "./routes/items.js";
 
@@ -17,7 +17,7 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.send({ message: "Hello World!" });
 });
-app.use("/users", userRoutes);
+app.use("/users", usersRouter);
 app.use("/categories", categoriesRoutes);
 app.use("/items", itemsRoutes);
 
