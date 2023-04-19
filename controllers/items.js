@@ -98,7 +98,7 @@ export const updateItem = async (req, res) => {
         description: newItem.description,
       }
     );
-    if (oldItem.modifiedCount > 0) {
+    if (oldItem.matchedCount > 0) {
       const itemUpdated = await Items.findOne({
         _id: id,
       });
