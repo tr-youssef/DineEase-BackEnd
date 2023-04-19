@@ -70,5 +70,56 @@ export const getUsers = async (req, res) => {
   }
 };
 
+export const signup2 = async (req, res) => {
+  const newEmployee = new UserModel({
+    fullName: req.body.fullName,
+    role: req.body.role,
+    email: req.body.email,
+    password: req.body.password,
+  });
+
+  try {
+    let existingEmployee = await UserModel.findOne({
+      email: newEmployee.email,
+    });
+
+    if (existingEmployee) {
+      return res.status(400).json({
+        msg: 'User Already Exists',
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    if (newEmployee.password) {
+      newEmployee.password = await bcrypt.hash(newEmployee.password.toString(), salt);
+    }
+    await newEmployee.save();
+
+    const payload = {
+      user: {
+        id: newEmployee.id,
+      },
+    };
+
+    jwt.sign(
+      payload,
+      'randomString',
+      {
+        expiresIn: '12h',
+      },
+      (err, token) => {
+        if (err) throw err;
+        res.status(200).json({
+          token,
+        });
+      }
+    );
+  } catch (error) {
+    console.error(error);
+    res.status(403).json({
+      error: error.message,
+    });
+  }
+};
 
 
