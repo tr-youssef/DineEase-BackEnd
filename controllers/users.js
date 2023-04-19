@@ -17,44 +17,32 @@ export const signin = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "SOmething went wrong." });
   }
-};
+}
+
+
 export const signup = async (req, res) => {
   try {
-    const { email, password, confirmPassword, firstName, lastName, restaurantId } = req.body;
+    const { email, password, firstName, lastName, restaurantId } = req.body;
     const existingUser = await User.findOne({ email });
 
-    if (existingUser) return res.status(400).json({ message: "User already exists." });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists." });
+    }
 
-    if (password !== confirmPassword) return res.status(400).json({ message: "passwords don't match." });
     const hashedPassword = await bcrypt.hash(password, 12);
     const result = await User.create({
-      email,
-      password: hashedPassword,
       firstName,
       lastName,
-      restaurantId,
+      role,
+      email,
+      password: hashedPassword,
+      restaurantId
     });
-    const token = jwt.sign({ email: result.email, id: result._id, restaurantId: result.restaurantId }, process.env.PRIVATE_KEY, {
-      expiresIn: "12h",
-    });
-    res.status(200).json({ result: result, token });
+
+    res.status(200).json({ result });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong.", error });
   }
 };
 
-export const addEmployee = async (req, res) => {
-  try {
-    const newEmployee = req.body;
-    let employeeCreated = await Employee.create({
-      firstName: newEmployee.name,
-      lastName: newEmployee.price,
-      email: newEmployee.picture,
-      role: newEmployee.description,
-      restaurantId: newEmployee.restaurantId,
-    });
-    res.status(201).json(employeeCreated);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+
