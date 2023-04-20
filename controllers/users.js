@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { UserModel } from "../models/users.js";
+import User from "../models/users.js";
 
 dotenv.config();
 
@@ -52,14 +52,14 @@ export const getUsers = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
-      let decodedData = jwt.verify(token, process.env.HASHCODE);
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    const users = await Users.find({
+    const users = await User.find({
       restaurantId: req.restaurantId,
     });
-    res.status(200).json(categories);
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
