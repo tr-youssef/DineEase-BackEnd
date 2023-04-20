@@ -6,7 +6,7 @@ export const getItems = async (req, res) => {
     const { categoryId } = req.params;
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
-      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
@@ -24,7 +24,7 @@ export const getItemById = async (req, res) => {
     const { id } = req.params;
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
-      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
@@ -42,7 +42,7 @@ export const addItem = async (req, res) => {
     const newItem = req.body;
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
-      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
@@ -64,7 +64,7 @@ export const deleteItem = async (req, res) => {
     const { id } = req.params;
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
-      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
@@ -82,7 +82,7 @@ export const updateItem = async (req, res) => {
     const { id } = req.params;
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
-      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      let decodedData = jwt.verify(token, process.env.HASHCODE);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
