@@ -15,7 +15,7 @@ export const signin = async (req, res) => {
     if (!existingUser.active) return res.status(400).json({ message: "User inactive" });
     const token = jwt.sign({ email: existingUser.email, id: existingUser._id, restaurantId: existingUser.restaurantId }, process.env.PRIVATE_KEY, { expiresIn: "12h" });
 
-    res.status(200).json({ email: existingUser.email, firstName: existingUser.firstName, lastName: existingUser.lastName, role: existingUser.role, restaurantId: existingUser.restaurantId, token: token });
+    res.status(200).json({ userId: existingUser._id, email: existingUser.email, firstName: existingUser.firstName, lastName: existingUser.lastName, role: existingUser.role, restaurantId: existingUser.restaurantId, token: token });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong." });
   }
