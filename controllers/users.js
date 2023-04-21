@@ -25,7 +25,14 @@ export const signin = async (req, res) => {
 
 export const signup = async (req, res) => {
   try {
-    const { email, password, confirmPassword, firstName, lastName, role, restaurantId } = req.body;
+    const user = req.headers.authorization.split(" ")[1];
+    if (user) {
+      let decodedData = jwt.verify(user, process.env.PRIVATE_KEY);
+      console.log('decodedData', decodedData)
+      req.restaurantId = decodedData?.restaurantId;
+      console.log('req.restaurantId', req.restaurantId)
+    }
+    const { email, password, confirmPassword, firstName, lastName, role } = req.body;
     const existingUser = await User.findOne({ email });
 
     if (existingUser) return res.status(400).json({ message: "User already exists." });
@@ -39,7 +46,7 @@ export const signup = async (req, res) => {
       lastName,
       role,
       active: true,
-      restaurantId,
+      restaurantId: req.restaurantId,
     });
     const token = jwt.sign({ email: result.email, id: result._id, restaurantId: result.restaurantId }, process.env.PRIVATE_KEY, {
       expiresIn: "12h",
@@ -49,6 +56,7 @@ export const signup = async (req, res) => {
     res.status(500).json({ message: "Something went wrong.", error });
   }
 };
+
 
 export const getUsersById = async (req, res) => {
   try {
@@ -80,7 +88,7 @@ export const getUsers = async (req, res) => {
     console.log('req.restaurantId', req.restaurantId)
     const users = await User.find({
       restaurantId: req.restaurantId,
-    });
+    }).sort({ active: 'desc' });
     console.log('users', users)
     res.status(200).json(users);
   } catch (error) {
@@ -125,7 +133,7 @@ export const updateEmployee = async (req, res) => {
   }
 };
 
-export const deleteEmployee = async (req, res) => {
+export const statusEmployee = async (req, res) => {
   try {
     const { id } = req.params;
     const token = req.headers.authorization.split(" ")[1];
@@ -134,17 +142,21 @@ export const deleteEmployee = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    const employeeDeleted = await User.deleteOne({
-      _id: id,
-      restaurantId: req.restaurantId,
-    });
-    employeeDeleted.deletedCount > 0 ? res.status(200).json("Employee deleted") : res.status(400).json("Employee doesn't exist");
+    const employeeToUpdate = await User.findOne({ _id: id });
+    if (!employeeToUpdate) {
+      return res.status(404).json({ message: `No employee with id : ${id}` });
+    }
+    const newStatus = !employeeToUpdate.active; // toggle status between true and false
+    const updatedEmployee = await User.findByIdAndUpdate(
+      id,
+      { active: newStatus },
+      { new: true }
+    );
+    res.status(201).json(updatedEmployee);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
-
 
 
 
