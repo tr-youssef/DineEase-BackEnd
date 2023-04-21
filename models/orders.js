@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
 export const ordersSchema = new mongoose.Schema({
-  tableId: {
+  bookedId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Table",
-    required: [true, "Table is required"],
+    required: [true, "Booked is required"],
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,

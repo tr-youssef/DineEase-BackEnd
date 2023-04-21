@@ -47,7 +47,7 @@ export const addOrder = async (req, res) => {
       req.restaurantId = decodedData?.restaurantId;
     }
     let orderCreated = await Orders.create({
-      tableId: newOrder.tableId,
+      bookedId: newOrder.tableId,
       userId: newOrder.userId,
       items: newOrder.items,
       subTotalAmount: newOrder.subTotalAmount,

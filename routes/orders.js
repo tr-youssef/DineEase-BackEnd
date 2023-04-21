@@ -3,10 +3,8 @@ import { addOrder, getOrderById, updateStatusOrder } from "../controllers/orders
 
 const router = express.Router();
 
-// router.get("/getItems/:categoryId", getItems);
 router.get("/:id", getOrderById);
 router.post("/", addOrder);
-// router.delete("/:id", deleteItem);
-router.patch("/:id", updateStatusOrder);
+router.patch("/status/:id", updateStatusOrder);
 
 export default router;
