@@ -1,23 +1,24 @@
 import jwt from "jsonwebtoken";
 import Orders from "../models/orders.js";
 
-// export const getItems = async (req, res) => {
-//   try {
-//     const { categoryId } = req.params;
-//     const token = req.headers.authorization.split(" ")[1];
-//     if (token) {
-//       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
-//       req.userId = decodedData?.id;
-//       req.restaurantId = decodedData?.restaurantId;
-//     }
-//     const items = await Items.find({
-//       categoryId: categoryId,
-//     });
-//     res.status(200).json(items);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+export const getOrders = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    const restaurantId = req.restaurantId;
+    const orders = await Orders.find({ status: "New" }).populate({
+      path: "bookedId",
+      populate: { path: "tableId", populate: { path: "restaurantId", match: { restaurantId } } },
+    });
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const getOrderById = async (req, res) => {
   try {
