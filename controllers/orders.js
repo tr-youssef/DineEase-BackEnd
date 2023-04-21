@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import Orders from "../models/orders.js";
+import mongoose from "mongoose";
 
 export const getOrders = async (req, res) => {
   try {
@@ -9,17 +10,17 @@ export const getOrders = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    const restaurantId = req.restaurantId;
+    console.log("token", token);
     const orders = await Orders.find({ status: "New" }).populate({
       path: "bookedId",
-      populate: { path: "tableId", populate: { path: "restaurantId", match: { restaurantId } } },
+      populate: { path: "tableId", populate: { path: "restaurantId" } },
     });
-    res.status(200).json(orders);
+    const filteredOrders = orders.filter((order) => order.bookedId.tableId.restaurantId?._id.toString() === req.restaurantId);
+    res.status(200).json(filteredOrders);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;

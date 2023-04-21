@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 export const tablesSchema = new mongoose.Schema({
   nameOfTable: { type: String, required: [true, "Name of the table is required"] },
   capacity: { type: Number, required: [true, "Capacity is required"] },
-  calculateTime: { type: Date, default: Date.now, required: false },
   status: {
     type: String,
     allowNull: false,
@@ -18,7 +17,7 @@ export const tablesSchema = new mongoose.Schema({
   },
   restaurantId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Restaurant",
+    ref: "Restaurants",
     allowNull: false,
     required: [true, "RestaurantId is required"],
   },
