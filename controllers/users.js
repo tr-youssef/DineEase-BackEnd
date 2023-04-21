@@ -146,7 +146,7 @@ export const statusEmployee = async (req, res) => {
     if (!employeeToUpdate) {
       return res.status(404).json({ message: `No employee with id : ${id}` });
     }
-    const newStatus = !employeeToUpdate.active; // toggle status between true and false
+    const newStatus = req.body.active === false ? false : true; 
     const updatedEmployee = await User.findByIdAndUpdate(
       id,
       { active: newStatus },

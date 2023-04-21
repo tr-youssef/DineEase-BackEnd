@@ -9,6 +9,6 @@ usersRouter.post("/signup", signup);
 usersRouter.get("/", getUsers);
 usersRouter.get("/:id", getUsersById);
 usersRouter.patch("/:id", updateEmployee)
-usersRouter.patch("/:id", statusEmployee);
+usersRouter.patch("/status/:id", statusEmployee);
 
 export default usersRouter;
