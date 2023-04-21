@@ -16,6 +16,7 @@ export const signin = async (req, res) => {
     const token = jwt.sign({ email: existingUser.email, id: existingUser._id, restaurantId: existingUser.restaurantId }, process.env.PRIVATE_KEY, { expiresIn: "12h" });
 
     res.status(200).json({ email: existingUser.email, firstName: existingUser.firstName, lastName: existingUser.lastName, role: existingUser.role, restaurantId: existingUser.restaurantId, token: token });
+  
   } catch (error) {
     res.status(500).json({ message: "Something went wrong." });
   }
@@ -49,22 +50,101 @@ export const signup = async (req, res) => {
   }
 };
 
-export const getUsers = async (req, res) => {
+export const getUsersById = async (req, res) => {
   try {
+    const { id } = req.params;
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
+    const user = await User.findOne({
+      _id: id,
+    });
+    user ? res.status(200).json(user) : res.status(404).send({ message: `No user with id: ${id}` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    console.log('token', token)
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    console.log('req.restaurantId', req.restaurantId)
     const users = await User.find({
       restaurantId: req.restaurantId,
     });
+    console.log('users', users)
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const updateEmployee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    const newEmployee = req.body;
+    const hashedPassword = await bcrypt.hash(newEmployee.password, 12);
+    const oldEmployee = await User.updateOne(
+      {
+        _id: id,
+      },
+      {
+        firstName: newEmployee.firstName,
+        lastName: newEmployee.lastName,
+        email: newEmployee.email,
+        role: newEmployee.role,
+        password: hashedPassword,
+        restaurantId: newEmployee.restaurantId,
+      }
+    );
+    if (oldEmployee.matchedCount > 0) {
+      const employeeUpdated = await User.findOne({
+        _id: id,
+      });
+      res.status(201).json(employeeUpdated);
+    } else {
+      res.status(404).json({ message: `No employee with id : ${id}` });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const deleteEmployee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    const employeeDeleted = await User.deleteOne({
+      _id: id,
+      restaurantId: req.restaurantId,
+    });
+    employeeDeleted.deletedCount > 0 ? res.status(200).json("Employee deleted") : res.status(400).json("Employee doesn't exist");
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 
 
 
