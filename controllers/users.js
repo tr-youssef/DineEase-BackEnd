@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 import User from "../models/users.js";
 
 dotenv.config();
@@ -146,7 +147,7 @@ export const statusEmployee = async (req, res) => {
     if (!employeeToUpdate) {
       return res.status(404).json({ message: `No employee with id : ${id}` });
     }
-    const newStatus = req.body.active === false ? false : true; 
+    const newStatus = req.body.active ? false : true;
     const updatedEmployee = await User.findByIdAndUpdate(
       id,
       { active: newStatus },
