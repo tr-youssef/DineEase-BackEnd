@@ -116,7 +116,6 @@ export const updateEmployee = async (req, res) => {
       req.restaurantId = decodedData?.restaurantId;
     }
     const newEmployee = req.body;
-    const hashedPassword = await bcrypt.hash(newEmployee.password, 12);
     const oldEmployee = await User.updateOne(
       {
         _id: id,
@@ -126,8 +125,6 @@ export const updateEmployee = async (req, res) => {
         lastName: newEmployee.lastName,
         email: newEmployee.email,
         role: newEmployee.role,
-        password: hashedPassword,
-        restaurantId: newEmployee.restaurantId,
       }
     );
     if (oldEmployee.matchedCount > 0) {
