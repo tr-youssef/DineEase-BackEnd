@@ -29,14 +29,14 @@ try {
       req.restaurantId = decodedData?.restaurantId;
     }
     let tableCreated = await Table.create({
-      userId: newTable.userId,
       capacity: newTable.capacity,
-      nameOfTable: newTable.nameOfTable
+      nameOfTable: newTable.nameOfTable,
+      status: newTable.status,
+      restaurantId: req.restaurantId,
     });
     console.log('tableCreated', tableCreated)
     res.status(201).json(tableCreated);
 } catch (error) {
-    console.log('error', error.message);
     res.status(500).json({ error: error.message });
   }
 };

@@ -96,15 +96,25 @@ export const getUsers = async (req, res) => {
       req.restaurantId = decodedData?.restaurantId;
     }
     console.log('req.restaurantId', req.restaurantId)
-    const users = await User.find({
-      restaurantId: req.restaurantId,
-    }).sort({ active: 'desc' });
+    const role = req.query.role;
+    let users;
+    if (role) {
+      users = await User.find({
+        restaurantId: req.restaurantId,
+        role: role
+      }).sort({ active: 'desc' });
+    } else {
+      users = await User.find({
+        restaurantId: req.restaurantId
+      }).sort({ active: 'desc' });
+    }
     console.log('users', users)
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 export const updateEmployee = async (req, res) => {
   try {
@@ -114,7 +124,7 @@ export const updateEmployee = async (req, res) => {
       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
-    }
+    };
     const newEmployee = req.body;
     const oldEmployee = await User.updateOne(
       {
