@@ -1,9 +1,14 @@
 import express from "express";
-import { signin, signup } from "../controllers/users.js";
+import { signin, signup,getUsers, updateEmployee, getUsersById, statusEmployee } from "../controllers/users.js";
 
-const router = express.Router();
 
-router.post("/signin", signin);
-router.post("/signup", signup);
+const usersRouter = express.Router();
 
-export default router;
+usersRouter.post("/signin", signin);
+usersRouter.post("/signup", signup);
+usersRouter.get("/", getUsers);
+usersRouter.get("/:id", getUsersById);
+usersRouter.patch("/:id", updateEmployee)
+usersRouter.patch("/status/:id", statusEmployee);
+
+export default usersRouter;
