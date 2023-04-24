@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import Table from "../models/Tables.js";
+import Table from "../models/tables.js";
 
 export const getTableById = async (req, res) => {
   try {
