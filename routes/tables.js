@@ -1,9 +1,10 @@
 import express from "express";
-import { addTables, getTables } from "../controllers/tables.js";
-
+import { addTable, getTableById, getTables } from "../controllers/Tables.js";
 const router = express.Router();
 
-router.post("/", addTables);
+router.get("/:id", getTableById);
+router.post("/", addTable);
 router.get("/", getTables);
+// router.patch("/status/:id", updateStatusTable);
 
 export default router;

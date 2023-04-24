@@ -1,28 +1,21 @@
 import mongoose from "mongoose";
 
-export const tablesSchema = new mongoose.Schema({
-  nameOfTable: { type: String, required: [true, "Name of the table is required"] },
-  capacity: { type: Number, required: [true, "Capacity is required"] },
-  status: {
-    type: String,
-    allowNull: false,
-    enum: ["Available", "Filled"],
-    required: [true, "Status amount is required"],
-  },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    allowNull: false,
-    required: [true, "UserId is required"],
-  },
-  restaurantId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Restaurants",
-    allowNull: false,
-    required: [true, "RestaurantId is required"],
-  },
-});
+const tableSchema = mongoose.Schema({
+    nameOfTable: { type: String, required: true },
+    capacity: { type: String, required: true },
+    status: { type: String, required: true },
+    restaurantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Restaurant",
+      require: [true, "Restaurant is required"],
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        require: [true, "User is required"],
+      },
+  });
 
-const Tables = mongoose.model("Tables", tablesSchema);
+const Table = mongoose.model("Table", tableSchema);
 
-export default Tables;
+export default Table;
