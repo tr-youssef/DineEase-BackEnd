@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const tableSchema = mongoose.Schema({
-  nameOfTable: { type: Number, required: true },
+  nameOfTable: { type: String, required: true },
   capacity: { type: Number, required: true },
   status: { type: String, enum: ["available", "filled"], default: "available" },
   restaurantId: {
@@ -11,7 +11,6 @@ const tableSchema = mongoose.Schema({
   },
 });
 
-const User = mongoose.model("Table", tableSchema);
+const Tables = mongoose.model("Tables", tableSchema);
 
-export default Table;
-
+export default Tables;
