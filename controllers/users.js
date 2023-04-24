@@ -51,9 +51,17 @@ export const signup = async (req, res) => {
       restaurantId: req.restaurantId,
     });
 
-    const token = jwt.sign({ email: result.email, id: result._id, restaurantId: result.restaurantId }, process.env.PRIVATE_KEY, {
-      expiresIn: "12h",
-    });
+    const token = jwt.sign(
+      {
+        email: result.email,
+        id: result._id,
+        restaurantId: result.restaurantId,
+      },
+      process.env.PRIVATE_KEY,
+      {
+        expiresIn: "12h",
+      }
+    );
 
     res.status(200).json({ result, token });
   } catch (error) {
@@ -82,6 +90,7 @@ export const getUsersById = async (req, res) => {
 export const getUsers = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
+    console.log("token", token);
     if (token) {
       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
       req.userId = decodedData?.id;
