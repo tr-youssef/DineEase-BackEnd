@@ -8,6 +8,7 @@ import categoriesRoutes from "./routes/categories.js";
 import itemsRoutes from "./routes/items.js";
 import uploadRoutes from "./routes/upload.js";
 import ordersRoutes from "./routes/orders.js";
+import tableRoutes from "./routes/tables.js";
 
 const app = express();
 dotenv.config();
@@ -26,6 +27,7 @@ app.use("/categories", categoriesRoutes);
 app.use("/items", itemsRoutes);
 app.use("/upload", uploadRoutes);
 app.use("/orders", ordersRoutes);
+app.use("/tables", tableRoutes);
 
 const PORT = process.env.PORT || 5001;
 
@@ -34,5 +36,7 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => app.listen(PORT, () => console.log(`Server running on port : ${PORT}`)))
+  .then(() =>
+    app.listen(PORT, () => console.log(`Server running on port : ${PORT}`))
+  )
   .catch((error) => console.log(error));
