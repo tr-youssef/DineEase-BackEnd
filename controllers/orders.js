@@ -1,24 +1,25 @@
 import jwt from "jsonwebtoken";
 import Orders from "../models/orders.js";
+import mongoose from "mongoose";
 
-// export const getItems = async (req, res) => {
-//   try {
-//     const { categoryId } = req.params;
-//     const token = req.headers.authorization.split(" ")[1];
-//     if (token) {
-//       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
-//       req.userId = decodedData?.id;
-//       req.restaurantId = decodedData?.restaurantId;
-//     }
-//     const items = await Items.find({
-//       categoryId: categoryId,
-//     });
-//     res.status(200).json(items);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
+export const getOrders = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    const orders = await Orders.find({ status: "New" }).populate({
+      path: "bookedId",
+      populate: { path: "tableId", populate: { path: "restaurantId" } },
+    });
+    const filteredOrders = orders.filter((order) => order.bookedId.tableId.restaurantId?._id.toString() === req.restaurantId);
+    res.status(200).json(filteredOrders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -46,17 +47,21 @@ export const addOrder = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
+    console.log("newOrder", newOrder);
     let orderCreated = await Orders.create({
-      bookedId: newOrder.tableId,
-      userId: newOrder.userId,
+      bookedId: "64423cfca9bd018c6f29c37b",
+      tableId: tableId,
+      userId: req.userId,
       items: newOrder.items,
       subTotalAmount: newOrder.subTotalAmount,
       tax: newOrder.tax,
       totalAmount: newOrder.totalAmount,
       status: newOrder.status,
     });
+    console.log("orderCreated", orderCreated);
     res.status(201).json(orderCreated);
   } catch (error) {
+    console.log("error.message", error.message);
     res.status(500).json({ error: error.message });
   }
 };

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export const ordersSchema = new mongoose.Schema({
   bookedId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Table",
+    ref: "Booked",
     required: [true, "Booked is required"],
   },
   userId: {
