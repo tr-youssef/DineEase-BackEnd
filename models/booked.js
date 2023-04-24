@@ -6,7 +6,7 @@ export const bookedSchema = new mongoose.Schema({
   calculateTime: { type: Date, default: Date.now, required: false },
   tableId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tables",
+    ref: "Table",
     allowNull: false,
     required: [true, "TableId is required"],
   },

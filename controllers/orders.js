@@ -10,7 +10,6 @@ export const getOrders = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    console.log("token", token);
     const orders = await Orders.find({ status: "New" }).populate({
       path: "bookedId",
       populate: { path: "tableId", populate: { path: "restaurantId" } },
@@ -48,17 +47,21 @@ export const addOrder = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
+    console.log("newOrder", newOrder);
     let orderCreated = await Orders.create({
-      bookedId: newOrder.tableId,
-      userId: newOrder.userId,
+      bookedId: "64423cfca9bd018c6f29c37b",
+      tableId: tableId,
+      userId: req.userId,
       items: newOrder.items,
       subTotalAmount: newOrder.subTotalAmount,
       tax: newOrder.tax,
       totalAmount: newOrder.totalAmount,
       status: newOrder.status,
     });
+    console.log("orderCreated", orderCreated);
     res.status(201).json(orderCreated);
   } catch (error) {
+    console.log("error.message", error.message);
     res.status(500).json({ error: error.message });
   }
 };

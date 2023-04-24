@@ -27,9 +27,7 @@ export const signup = async (req, res) => {
     const user = req.headers.authorization.split(" ")[1];
     if (user) {
       let decodedData = jwt.verify(user, process.env.PRIVATE_KEY);
-      console.log("decodedData", decodedData);
       req.restaurantId = decodedData?.restaurantId;
-      console.log("req.restaurantId", req.restaurantId);
     }
     const { email, password, confirmPassword, firstName, lastName, role } = req.body;
     const existingUser = await User.findOne({ email });
@@ -84,13 +82,11 @@ export const getUsersById = async (req, res) => {
 export const getUsers = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    console.log("token", token);
     if (token) {
       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    console.log("req.restaurantId", req.restaurantId);
     const role = req.query.role;
     let users;
     if (role) {
@@ -103,7 +99,6 @@ export const getUsers = async (req, res) => {
         restaurantId: req.restaurantId,
       }).sort({ active: "desc" });
     }
-    console.log("users", users);
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
