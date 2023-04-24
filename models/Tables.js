@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const tableSchema = mongoose.Schema({
     nameOfTable: { type: String, required: true },
     capacity: { type: String, required: true },
+    status: { type: String, required: true },
     restaurantId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Restaurant",

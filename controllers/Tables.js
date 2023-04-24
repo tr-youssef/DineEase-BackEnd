@@ -33,6 +33,7 @@ try {
       nameOfTable: newTable.nameOfTable,
       status: newTable.status,
       restaurantId: req.restaurantId,
+      userId: newTable.userId,
     });
     console.log('tableCreated', tableCreated)
     res.status(201).json(tableCreated);
@@ -58,3 +59,23 @@ try {
 //     res.status(500).json({ error: error.message });
 //   }
 // };
+
+export const getTables = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    console.log('token', token)
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    console.log('req.restaurantId', req.restaurantId)
+    const tables = await Table.find({ restaurantId: req.restaurantId });
+    console.log('tables', tables)
+    res.status(200).json(tables);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
