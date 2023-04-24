@@ -5,11 +5,10 @@ import cors from "cors";
 import dotenv from "dotenv";
 import usersRouter from "./routes/users.js";
 import categoriesRoutes from "./routes/categories.js";
-import tableRoutes from "./routes/Tables.js"
+import tableRoutes from "./routes/Tables.js";
 import itemsRoutes from "./routes/items.js";
 import uploadRoutes from "./routes/upload.js";
 import ordersRoutes from "./routes/orders.js";
-import tableRoutes from "./routes/tables.js";
 
 const app = express();
 dotenv.config();
@@ -29,7 +28,7 @@ app.use("/items", itemsRoutes);
 app.use("/upload", uploadRoutes);
 app.use("/orders", ordersRoutes);
 app.use("/tables", tableRoutes);
-app.use("/tables", tableRoutes)
+app.use("/tables", tableRoutes);
 
 const PORT = process.env.PORT || 5001;
 
