@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import Table from "../models/Tables.js";
 
-export const getTableById = async (req, res) => {
+export const updateTable = async (req, res) => {
   try {
     const { id } = req.params;
     const token = req.headers.authorization.split(" ")[1];
@@ -9,11 +9,28 @@ export const getTableById = async (req, res) => {
       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
+    };
+    const newTable = req.body;
+    const oldTable = await Table.updateOne(
+      {
+        _id: id,
+      },
+      {
+        nameOfTable: newTable.nameOfTable,
+        capacity: newTable.capacity,
+        status: newTable.status,
+        restaurantId: req.restaurantId,
+        userId: newTable.userId,
+      }
+    );
+    if (oldTable.matchedCount > 0) {
+      const TableUpdated = await Table.findOne({
+        _id: id,
+      });
+      res.status(201).json(TableUpdated);
+    } else {
+      res.status(404).json({ message: `No Table with id : ${id}` });
     }
-    const table = await Tables.findOne({
-      _id: id,
-    });
-    table ? res.status(200).json(table) : res.status(404).send({ message: `No table with id: ${id}` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
