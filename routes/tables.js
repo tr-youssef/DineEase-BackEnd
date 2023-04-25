@@ -1,13 +1,13 @@
 import express from "express";
-import { addTable, getTableById, getTables,  getAvailableTables, updateTableStauts }
+import { addTable, deleteTable, getTableById, getTables, updateTable }
  from "../controllers/Tables.js";
 const router = express.Router();
 
 router.get("/:id", getTableById);
 router.post("/", addTable);
 router.get("/", getTables);
-router.get("/available", getAvailableTables);
-router.patch("/status/:id", updateTableStauts);
+router.patch("/:id", updateTable);
+router.delete("/:id", deleteTable);
 
 export default router;
 
