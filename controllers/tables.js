@@ -10,7 +10,7 @@ export const getTableById = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    const table = await Tables.findOne({
+    const table = await Table.findOne({
       _id: id,
     });
     table ? res.status(200).json(table) : res.status(404).send({ message: `No table with id: ${id}` });
@@ -60,22 +60,68 @@ try {
 //   }
 // };
 
-export const getTables = async (req, res) => {
-  try {
-    const token = req.headers.authorization.split(" ")[1];
-    console.log('token', token)
-    if (token) {
-      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
-      req.userId = decodedData?.id;
-      req.restaurantId = decodedData?.restaurantId;
+  export const getTables = async (req, res) => {
+    try {
+      const token = req.headers.authorization.split(" ")[1];
+      console.log('token', token)
+      if (token) {
+        let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+        req.userId = decodedData?.id;
+        req.restaurantId = decodedData?.restaurantId;
+      }
+      console.log('req.restaurantId', req.restaurantId)
+      const tables = await Table.find({ restaurantId: req.restaurantId });
+      console.log('tables', tables)
+      res.status(200).json(tables);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-    console.log('req.restaurantId', req.restaurantId)
-    const tables = await Table.find({ restaurantId: req.restaurantId });
-    console.log('tables', tables)
-    res.status(200).json(tables);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+  };
 
+  export const getAvailableTables = async (req, res) => {
+    try {
+      const token = req.headers.authorization.split(" ")[1];
+      console.log('token', token)
+      if (token) {
+        let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+        req.userId = decodedData?.id;
+        req.restaurantId = decodedData?.restaurantId;
+      }
+      console.log('req.restaurantId', req.restaurantId)
+      const tables = await Table.find({ restaurantId: req.restaurantId, status: "available" });
+      console.log('tables', tables)
+      res.status(200).json(tables);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  export const updateTableStauts = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const token = req.headers.authorization.split(" ")[1];
+      if (token) {
+        let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+        req.userId = decodedData?.id;
+        req.restaurantId = decodedData?.restaurantId;
+      }
+      const newStatus = req.body.status;
+      const updateTable = await Table.findOneAndUpdate(
+        {
+          _id: id,
+        },
+        { status: newStatus }
+      );
+      if (updateTable) {
+        const newTable = await Table.findOne({
+          _id: id,
+        });
+        res.status(201).json(newTable);
+      } else {
+        res.status(404).json({ message: `No Table with id : ${id}` });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 
