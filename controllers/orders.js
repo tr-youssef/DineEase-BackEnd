@@ -46,7 +46,6 @@ export const addOrder = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    console.log("newOrder", newOrder);
     let orderCreated = await Orders.create({
       bookedId: "64423cfca9bd018c6f29c37b",
       userId: req.userId,
@@ -56,10 +55,8 @@ export const addOrder = async (req, res) => {
       totalAmount: newOrder.totalAmount,
       status: newOrder.status,
     });
-    console.log("orderCreated", orderCreated);
     res.status(201).json(orderCreated);
   } catch (error) {
-    console.log("error.message", error.message);
     res.status(500).json({ error: error.message });
   }
 };

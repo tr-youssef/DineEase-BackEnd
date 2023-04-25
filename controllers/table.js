@@ -12,7 +12,7 @@ export const getTableById = async (req, res) => {
     }
     const table = await Table.findOne({
       _id: id,
-    });
+    }).populate({ path: "userId" });
     table ? res.status(200).json(table) : res.status(404).send({ message: `No table with id: ${id}` });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -35,7 +35,6 @@ export const addTable = async (req, res) => {
       restaurantId: req.restaurantId,
       userId: newTable.userId,
     });
-    console.log("tableCreated", tableCreated);
     res.status(201).json(tableCreated);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -63,7 +62,6 @@ export const addTable = async (req, res) => {
 export const getTables = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    console.log("token", token);
     if (token) {
       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
       req.userId = decodedData?.id;
