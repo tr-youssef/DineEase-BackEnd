@@ -1,5 +1,5 @@
 import express from "express";
-import { addTable, getTableById, getTables, getAvailableTablesByServerId, getAlreadyOrderedTablesByServerId } from "../controllers/tables.js";
+import { addTable, getTableById, getTables, getAvailableTablesByServerId, getAlreadyOrderedTablesByServerId } from "../controllers/table.js";
 const router = express.Router();
 
 router.get("/:id", getTableById);
