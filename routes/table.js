@@ -5,8 +5,8 @@ const router = express.Router();
 router.get("/:id", getTableById);
 router.post("/", addTable);
 router.get("/", getTables);
-router.get("/availableTables/:id", getAvailableTablesByServerId);
-router.get("/alreadyordered/:id", getAlreadyOrderedTablesByServerId);
+router.get("/availableTables/", getAvailableTablesByServerId);
+router.get("/alreadyordered/", getAlreadyOrderedTablesByServerId);
 // router.patch("/status/:id", updateStatusTable);
 
 export default router;
