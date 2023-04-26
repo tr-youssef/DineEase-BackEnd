@@ -128,3 +128,24 @@ export const getAlreadyOrderedTablesByServerId = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const getAvailableTables = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    let tables = await Table.find({ status: "available" }).populate({ path: "userId" }).populate({ path: "restaurantId" });
+    // const filteredTables = tables.filter((table) => table.restaurantId._id.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
+    console.log('tables', tables)
+    if (!tables) {
+      res.status(404).send({ message: `No table found.` });
+    } else {
+      res.status(200).json(tables);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
