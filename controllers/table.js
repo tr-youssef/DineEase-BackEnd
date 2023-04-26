@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import Table from "../models/table.js";
 import Booked from "../models/booked.js";
 
-
 export const getTableById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -29,7 +28,7 @@ export const updateTable = async (req, res) => {
       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
-    };
+    }
     const newTable = req.body;
     const oldTable = await Table.updateOne(
       {
@@ -140,11 +139,11 @@ export const getAvailableTables = async (req, res) => {
       req.restaurantId = decodedData?.restaurantId;
     }
     let tables = await Table.find({ status: "available" }).populate({ path: "userId" }).populate({ path: "restaurantId" });
-    // const filteredTables = tables.filter((table) => table.restaurantId._id.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
-    if (!tables) {
+    const filteredTables = tables.filter((table) => table.restaurantId._id.toString() === req.restaurantId);
+    if (!filteredTables) {
       res.status(404).send({ message: `No table found.` });
     } else {
-      res.status(200).json(tables);
+      res.status(200).json(filteredTables);
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -159,15 +158,15 @@ export const getFilledTables = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    let tables = await Booked.find({ status: "NewClient" })
+    let tables = await Booked.find()
       .select({ _id: 1, bookedAt: 1 })
-      .populate({ path: "tableId", select: { restaurantId: 1, nameOfTable: 1, capacity: 1 }, populate: { path: "userId", select: { userId: 1 } } });
+      .populate({ path: "tableId", select: { restaurantId: 1, nameOfTable: 1, capacity: 1 } });
 
     const formattedTables = tables.map((table) => {
       const bookedAt = new Date(table.bookedAt);
       const formattedDate = bookedAt.toLocaleDateString();
-      const formattedTime = bookedAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
-      const waitingTime = Math.round((new Date() - bookedAt) / 1000); 
+      const formattedTime = bookedAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+      const waitingTime = Math.round((new Date() - bookedAt) / 1000);
       let waitingTimeText;
       if (waitingTime < 60) {
         waitingTimeText = `${waitingTime} sec`;

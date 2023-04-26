@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 export const bookedSchema = new mongoose.Schema({
   bookedAt: { type: Date, default: Date.now, required: [true, "BookedAt is required"] },
-  leavedAt: { type: Date, default: Date.now, required: false },
-  calculateTime: { type: Date, default: Date.now, required: false },
+  leavedAt: { type: Date, allowNull: true, required: false },
+  calculateTime: { type: Date, allowNull: true, required: false },
   tableId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Table",
