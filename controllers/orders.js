@@ -19,6 +19,27 @@ export const getOrders = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const sendOrders = async (req, res) => {
+  try {
+    // const token = req.headers.authorization.split(" ")[1];
+    // if (token) {
+    //   let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+    //   req.userId = decodedData?.id;
+    //   req.restaurantId = decodedData?.restaurantId;
+    // }
+    const orders = await Orders.find({ status: "New" }).populate({
+      path: "bookedId",
+      populate: { path: "tableId", populate: { path: "restaurantId" } },
+    });
+    console.log("orders", orders);
+    // const filteredOrders = orders.filter((order) => order.bookedId.tableId.restaurantId?._id.toString() === req.restaurantId);
+    return orders;
+  } catch (error) {
+    return error.message;
+  }
+};
+
 export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -47,7 +68,7 @@ export const addOrder = async (req, res) => {
       req.restaurantId = decodedData?.restaurantId;
     }
     let orderCreated = await Orders.create({
-      bookedId: "64423cfca9bd018c6f29c37b",
+      bookedId: newOrder.bookedId.id,
       userId: req.userId,
       items: newOrder.items,
       subTotalAmount: newOrder.subTotalAmount,
