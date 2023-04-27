@@ -32,7 +32,6 @@ export const sendOrders = async (req, res) => {
       path: "bookedId",
       populate: { path: "tableId", populate: { path: "restaurantId" } },
     });
-    console.log("orders", orders);
     // const filteredOrders = orders.filter((order) => order.bookedId.tableId.restaurantId?._id.toString() === req.restaurantId);
     return orders;
   } catch (error) {

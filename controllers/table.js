@@ -164,7 +164,6 @@ export const getFilledTables = async (req, res) => {
 
     const formattedTables = tables.map((table) => {
       const bookedAt = new Date(table.bookedAt);
-      console.log('bookedAt', bookedAt)
       const formattedTime = bookedAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
       const waitingTime = Math.round((new Date() - bookedAt) / 1000); 
       let waitingTimeText;
