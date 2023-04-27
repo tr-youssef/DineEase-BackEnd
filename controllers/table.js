@@ -28,7 +28,7 @@ export const updateTable = async (req, res) => {
       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
-    }
+    };
     const newTable = req.body;
     const oldTable = await Table.updateOne(
       {
@@ -139,11 +139,11 @@ export const getAvailableTables = async (req, res) => {
       req.restaurantId = decodedData?.restaurantId;
     }
     let tables = await Table.find({ status: "available" }).populate({ path: "userId" }).populate({ path: "restaurantId" });
-    const filteredTables = tables.filter((table) => table.restaurantId._id.toString() === req.restaurantId);
-    if (!filteredTables) {
+    // const filteredTables = tables.filter((table) => table.restaurantId._id.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
+    if (!tables) {
       res.status(404).send({ message: `No table found.` });
     } else {
-      res.status(200).json(filteredTables);
+      res.status(200).json(tables);
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -158,15 +158,15 @@ export const getFilledTables = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    let tables = await Booked.find()
+    let tables = await Booked.find({ status: "NewClient" })
       .select({ _id: 1, bookedAt: 1 })
-      .populate({ path: "tableId", select: { restaurantId: 1, nameOfTable: 1, capacity: 1 } });
+      .populate({ path: "tableId", select: { restaurantId: 1, nameOfTable: 1, capacity: 1 }, populate: { path: "userId", select: { userId: 1 } } });
 
     const formattedTables = tables.map((table) => {
       const bookedAt = new Date(table.bookedAt);
-      const formattedDate = bookedAt.toLocaleDateString();
-      const formattedTime = bookedAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
-      const waitingTime = Math.round((new Date() - bookedAt) / 1000);
+      console.log('bookedAt', bookedAt)
+      const formattedTime = bookedAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+      const waitingTime = Math.round((new Date() - bookedAt) / 1000); 
       let waitingTimeText;
       if (waitingTime < 60) {
         waitingTimeText = `${waitingTime} sec`;
@@ -175,7 +175,7 @@ export const getFilledTables = async (req, res) => {
       } else {
         waitingTimeText = `${Math.floor(waitingTime / 3600)} hr`;
       }
-      return { _id: table._id, nameOfTable: table.tableId.nameOfTable, capacity: table.tableId.capacity, bookedAt: `${formattedDate} ${formattedTime}`, waitingTime: waitingTimeText };
+      return { _id: table._id, nameOfTable: table.tableId.nameOfTable, capacity: table.tableId.capacity, bookedAt: `${formattedTime}`, waitingTime: waitingTimeText };
     });
 
     if (!formattedTables) {
