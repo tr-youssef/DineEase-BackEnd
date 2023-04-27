@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import Orders from "../models/orders.js";
+import Booked from "../models/booked.js";
 
 export const getOrders = async (req, res) => {
   try {
@@ -13,7 +14,10 @@ export const getOrders = async (req, res) => {
       path: "bookedId",
       populate: { path: "tableId", populate: { path: "restaurantId" } },
     });
-    const filteredOrders = orders.filter((order) => order.bookedId.tableId.restaurantId?._id.toString() === req.restaurantId);
+    const filteredOrders = orders.filter(
+      (order) =>
+        order.bookedId.tableId.restaurantId?._id.toString() === req.restaurantId
+    );
     res.status(200).json(filteredOrders);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -32,7 +36,6 @@ export const sendOrders = async (req, res) => {
       path: "bookedId",
       populate: { path: "tableId", populate: { path: "restaurantId" } },
     });
-    console.log("orders", orders);
     // const filteredOrders = orders.filter((order) => order.bookedId.tableId.restaurantId?._id.toString() === req.restaurantId);
     return orders;
   } catch (error) {
@@ -52,7 +55,9 @@ export const getOrderById = async (req, res) => {
     const order = await Orders.findOne({
       _id: id,
     });
-    order ? res.status(200).json(order) : res.status(404).send({ message: `No order with id: ${id}` });
+    order
+      ? res.status(200).json(order)
+      : res.status(404).send({ message: `No order with id: ${id}` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -76,6 +81,10 @@ export const addOrder = async (req, res) => {
       totalAmount: newOrder.totalAmount,
       status: newOrder.status,
     });
+    await Booked.findOneAndUpdate(
+      { _id: newOrder.bookedId?.id },
+      { status: "AlreadyOrdered" }
+    );
     res.status(201).json(orderCreated);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -140,9 +149,29 @@ export const getAlreadyOrderedTablesByServerId = async (req, res) => {
     let tables = await Orders.find({ status: "Ready" })
       .select({ _id: 1 })
       .populate({ path: "userId", select: { _id: 1 } })
-      .populate({ path: "bookedId", select: { _id: 1 }, populate: { path: "tableId", select: { nameOfTable: 1, capacity: 1, restaurantId: 1 } } });
-    const filteredTables = tables.filter((table) => table.bookedId.tableId.restaurantId.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
-    const finishTables = filteredTables.map((filteredtable) => ({ _id: filteredtable._id, nameOfTable: filteredtable.bookedId.tableId.nameOfTable, capacity: filteredtable.bookedId.tableId.capacity }));
+      .populate({
+        path: "bookedId",
+        select: { _id: 1, status: 1 },
+        populate: {
+          path: "tableId",
+          select: { nameOfTable: 1, capacity: 1, restaurantId: 1 },
+        },
+      });
+
+    const filteredTables = tables.filter(
+      (table) =>
+        table.bookedId?.tableId?.restaurantId?.toString() ===
+          req.restaurantId &&
+        table.userId?._id?.toString() === req.userId &&
+        table.bookedId?.status === "AlreadyOrdered"
+    );
+    let finishTables = filteredTables.map((filteredtable) => ({
+      _id: filteredtable._id,
+      bookingId: filteredtable.bookedId?._id,
+      nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
+      capacity: filteredtable.bookedId.tableId.capacity,
+    }));
+   
     if (!finishTables) {
       res.status(404).send({ message: `No table found.` });
     } else {

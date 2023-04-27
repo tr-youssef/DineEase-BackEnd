@@ -14,7 +14,9 @@ export const getTableById = async (req, res) => {
     const table = await Table.findOne({
       _id: id,
     }).populate({ path: "userId" });
-    table ? res.status(200).json(table) : res.status(404).send({ message: `No table with id: ${id}` });
+    table
+      ? res.status(200).json(table)
+      : res.status(404).send({ message: `No table with id: ${id}` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -89,7 +91,9 @@ export const deleteTable = async (req, res) => {
     const TableDeleted = await Table.deleteOne({
       _id: id,
     });
-    TableDeleted.deletedCount > 0 ? res.status(200).json("Table deleted") : res.status(400).json("Table doesn't exist");
+    TableDeleted.deletedCount > 0
+      ? res.status(200).json("Table deleted")
+      : res.status(400).json("Table doesn't exist");
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -118,8 +122,15 @@ export const getAlreadyOrderedTablesByServerId = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    let tables = await Table.find({ status: "Filled" }).populate({ path: "userId" }).populate({ path: "restaurantId" });
-    const filteredTables = tables.filter((table) => table.restaurantId._id.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
+    let tables = await Table.find({ status: "Filled" })
+      .populate({ path: "userId" })
+      .populate({ path: "restaurantId" });
+    console.log(JSON.stringify(tables));
+    const filteredTables = tables.filter(
+      (table) =>
+        table.restaurantId._id.toString() === req.restaurantId &&
+        table.userId._id.toString() === req.userId
+    );
     if (!filteredTables) {
       res.status(404).send({ message: `No table found.` });
     } else {
@@ -138,8 +149,12 @@ export const getAvailableTables = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    let tables = await Table.find({ status: "available" }).populate({ path: "userId" }).populate({ path: "restaurantId" });
-    const filteredTables = tables.filter((table) => table.restaurantId._id.toString() === req.restaurantId);
+    let tables = await Table.find({ status: "available" })
+      .populate({ path: "userId" })
+      .populate({ path: "restaurantId" });
+    const filteredTables = tables.filter(
+      (table) => table.restaurantId._id.toString() === req.restaurantId
+    );
     if (!filteredTables) {
       res.status(404).send({ message: `No table found.` });
     } else {
@@ -160,12 +175,19 @@ export const getFilledTables = async (req, res) => {
     }
     let tables = await Booked.find()
       .select({ _id: 1, bookedAt: 1 })
-      .populate({ path: "tableId", select: { restaurantId: 1, nameOfTable: 1, capacity: 1 } });
+      .populate({
+        path: "tableId",
+        select: { restaurantId: 1, nameOfTable: 1, capacity: 1 },
+      });
 
     const formattedTables = tables.map((table) => {
       const bookedAt = new Date(table.bookedAt);
       const formattedDate = bookedAt.toLocaleDateString();
-      const formattedTime = bookedAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+      const formattedTime = bookedAt.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      });
       const waitingTime = Math.round((new Date() - bookedAt) / 1000);
       let waitingTimeText;
       if (waitingTime < 60) {
@@ -175,7 +197,13 @@ export const getFilledTables = async (req, res) => {
       } else {
         waitingTimeText = `${Math.floor(waitingTime / 3600)} hr`;
       }
-      return { _id: table._id, nameOfTable: table.tableId.nameOfTable, capacity: table.tableId.capacity, bookedAt: `${formattedDate} ${formattedTime}`, waitingTime: waitingTimeText };
+      return {
+        _id: table._id,
+        nameOfTable: table.tableId.nameOfTable,
+        capacity: table.tableId.capacity,
+        bookedAt: `${formattedDate} ${formattedTime}`,
+        waitingTime: waitingTimeText,
+      };
     });
 
     if (!formattedTables) {
