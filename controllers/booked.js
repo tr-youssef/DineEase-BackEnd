@@ -61,7 +61,7 @@ export const updateBooked = async (req, res) => {
       },
       {
         bookedAt: newBooked.bookedAt,
-        leavedAt: newBooked.leavedAt,
+        leavedAt:  Date.now(),
         calculateTime: newBooked.calculateTime,
         tableId: req.tableId,
         status: newBooked.status,
