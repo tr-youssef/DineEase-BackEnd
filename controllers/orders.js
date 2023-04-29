@@ -136,7 +136,7 @@ export const getAlreadyOrderedTablesByServerId = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    let tables = await Orders.find({ status: "Ready" })
+    let tables = await Orders.find({ status: "New" })
       .select({ _id: 1 })
       .populate({ path: "userId", select: { _id: 1 } })
       .populate({ path: "bookedId", select: { _id: 1 }, populate: { path: "tableId", select: { nameOfTable: 1, capacity: 1, restaurantId: 1 } } });
