@@ -141,7 +141,14 @@ export const getAlreadyOrderedTablesByServerId = async (req, res) => {
       .populate({ path: "userId", select: { _id: 1 } })
       .populate({ path: "bookedId", select: { _id: 1 }, populate: { path: "tableId", select: { nameOfTable: 1, capacity: 1, restaurantId: 1 } } });
     const filteredTables = tables.filter((table) => table.bookedId.tableId.restaurantId.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
-    const finishTables = filteredTables.map((filteredtable) => ({ _id: filteredtable._id, nameOfTable: filteredtable.bookedId.tableId.nameOfTable, capacity: filteredtable.bookedId.tableId.capacity }));
+    const finishTables = filteredTables.map((filteredtable) => ({
+      _id: filteredtable._id,
+      bookedId: filteredtable.bookedId._id,
+      tableId: filteredtable.bookedId.tableId._id, 
+      nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
+      capacity: filteredtable.bookedId.tableId.capacity
+    }));
+    
     if (!finishTables) {
       res.status(404).send({ message: `No table found.` });
     } else {

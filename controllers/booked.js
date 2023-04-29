@@ -44,3 +44,38 @@ export const getAvailableTablesByServerId = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const updateBooked = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    };
+    const newBooked = req.body;
+    const oldBooked = await Booked.updateOne(
+      {
+        _id: id,
+      },
+      {
+        bookedAt: newBooked.bookedAt,
+        leavedAt: newBooked.leavedAt,
+        calculateTime: newBooked.calculateTime,
+        tableId: req.tableId,
+        status: newBooked.status,
+      }
+    );
+    if (oldBooked.matchedCount > 0) {
+      const BookedUpdated = await Booked.findOne({
+        _id: id,
+      });
+      res.status(201).json(BookedUpdated);
+    } else {
+      res.status(404).json({ message: `No Booked with id : ${id}` });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
