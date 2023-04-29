@@ -114,7 +114,7 @@ export const getTables = async (req, res) => {
   }
 };
 
-export const getAlreadyOrderedTablesByServerId = async (req, res) => {
+export const getOrderServedByServerId = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (token) {

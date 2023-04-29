@@ -138,7 +138,7 @@ export const updateStatusOrder = async (req, res) => {
   }
 };
 
-export const getAlreadyOrderedTablesByServerId = async (req, res) => {
+export const getOrderReadyByServerId = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
@@ -171,7 +171,51 @@ export const getAlreadyOrderedTablesByServerId = async (req, res) => {
       nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
       capacity: filteredtable.bookedId.tableId.capacity,
     }));
-   
+
+    if (!finishTables) {
+      res.status(404).send({ message: `No table found.` });
+    } else {
+      res.status(200).json(finishTables);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getOrderServedByServerId = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    let tables = await Orders.find({ status: "Ready" })
+      .select({ _id: 1 })
+      .populate({ path: "userId", select: { _id: 1 } })
+      .populate({
+        path: "bookedId",
+        select: { _id: 1, status: 1 },
+        populate: {
+          path: "tableId",
+          select: { nameOfTable: 1, capacity: 1, restaurantId: 1 },
+        },
+      });
+
+    const filteredTables = tables.filter(
+      (table) =>
+        table.bookedId?.tableId?.restaurantId?.toString() ===
+          req.restaurantId &&
+        table.userId?._id?.toString() === req.userId &&
+        table.bookedId?.status === "AlreadyOrdered"
+    );
+    let finishTables = filteredTables.map((filteredtable) => ({
+      _id: filteredtable._id,
+      bookingId: filteredtable.bookedId?._id,
+      nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
+      capacity: filteredtable.bookedId.tableId.capacity,
+    }));
+
     if (!finishTables) {
       res.status(404).send({ message: `No table found.` });
     } else {
