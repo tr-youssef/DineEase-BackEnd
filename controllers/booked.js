@@ -54,15 +54,16 @@ export const updateBooked = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     };
+
     const newBooked = req.body;
+    const leavedAt = Date.now();
     const oldBooked = await Booked.updateOne(
       {
         _id: id,
       },
       {
         bookedAt: newBooked.bookedAt,
-        leavedAt:  Date.now(),
-        calculateTime: newBooked.calculateTime,
+        leavedAt: leavedAt, 
         tableId: req.tableId,
         status: newBooked.status,
       }
