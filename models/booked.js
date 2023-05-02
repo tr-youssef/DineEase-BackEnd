@@ -13,7 +13,7 @@ export const bookedSchema = new mongoose.Schema({
   status: {
     type: String,
     allowNull: false,
-    enum: ["NewClient", "AlreadyOrdered", "Payed"],
+    enum: ["NewClient", "AlreadyOrdered", "AlreadyServed", "Payed"],
     required: [true, "Status amount is required"],
   },
 });
