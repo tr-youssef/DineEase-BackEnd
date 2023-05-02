@@ -81,6 +81,7 @@ export const addOrder = async (req, res) => {
       totalAmount: newOrder.totalAmount,
       status: newOrder.status,
     });
+
     await Booked.findOneAndUpdate(
       { _id: newOrder.bookedId?.id },
       { status: "AlreadyOrdered" }
@@ -91,23 +92,36 @@ export const addOrder = async (req, res) => {
   }
 };
 
-// export const deleteItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const token = req.headers.authorization.split(" ")[1];
-//     if (token) {
-//       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
-//       req.userId = decodedData?.id;
-//       req.restaurantId = decodedData?.restaurantId;
-//     }
-//     const itemDeleted = await Items.deleteOne({
-//       _id: id,
-//     });
-//     itemDeleted.deletedCount > 0 ? res.status(200).json("Category deleted") : res.status(400).json("Category doesn't exist");
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+export const getAlreadyServedTablesByServerId = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    let tables = await Orders.find({ status: "Served" })
+      .select({ _id: 1 })
+      .populate({ path: "userId", select: { _id: 1 } })
+      .populate({ path: "bookedId", select: { _id: 1 }, populate: { path: "tableId", select: { nameOfTable: 1, capacity: 1, restaurantId: 1 } } });
+    const filteredTables = tables.filter((table) => table.bookedId.tableId.restaurantId.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
+    const finishTables = filteredTables.map((filteredtable) => ({
+      _id: filteredtable._id,
+      bookedId: filteredtable.bookedId._id,
+      tableId: filteredtable.bookedId.tableId._id, 
+      nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
+      capacity: filteredtable.bookedId.tableId.capacity
+    }));
+    
+    if (!finishTables) {
+      res.status(404).send({ message: `No table found.` });
+    } else {
+      res.status(200).json(finishTables);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const updateStatusOrder = async (req, res) => {
   try {
@@ -146,6 +160,37 @@ export const getOrderReadyByServerId = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
+    let tables = await Orders.find({ status: "New" })
+      .select({ _id: 1 })
+      .populate({ path: "userId", select: { _id: 1 } })
+      .populate({ path: "bookedId", select: { _id: 1 }, populate: { path: "tableId", select: { nameOfTable: 1, capacity: 1, restaurantId: 1 } } });
+    const filteredTables = tables.filter((table) => table.bookedId.tableId.restaurantId.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
+    const finishTables = filteredTables.map((filteredtable) => ({
+      _id: filteredtable._id,
+      bookedId: filteredtable.bookedId._id,
+      tableId: filteredtable.bookedId.tableId._id, 
+      nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
+      capacity: filteredtable.bookedId.tableId.capacity
+    }));
+    
+    if (!finishTables) {
+      res.status(404).send({ message: `No table found.` });
+    } else {
+      res.status(200).json(finishTables);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getOrderReadyByServerId = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
     let tables = await Orders.find({ status: "Ready" })
       .select({ _id: 1 })
       .populate({ path: "userId", select: { _id: 1 } })
@@ -157,6 +202,7 @@ export const getOrderReadyByServerId = async (req, res) => {
           select: { nameOfTable: 1, capacity: 1, restaurantId: 1 },
         },
       });
+   
 
     const filteredTables = tables.filter(
       (table) =>
@@ -165,107 +211,13 @@ export const getOrderReadyByServerId = async (req, res) => {
         table.userId?._id?.toString() === req.userId &&
         table.bookedId?.status === "AlreadyOrdered"
     );
-    let finishTables = filteredTables.map((filteredtable) => ({
-      _id: filteredtable._id,
-      bookingId: filteredtable.bookedId?._id,
-      nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
-      capacity: filteredtable.bookedId.tableId.capacity,
-    }));
 
-    if (!finishTables) {
+    if (!filteredTables) {
       res.status(404).send({ message: `No table found.` });
     } else {
-      res.status(200).json(finishTables);
+      res.status(200).json(filteredTables);
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
-// export const getOrderReadyByServerId = async (req, res) => {
-//   try {
-//     const token = req.headers.authorization.split(" ")[1];
-//     if (token) {
-//       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
-//       req.userId = decodedData?.id;
-//       req.restaurantId = decodedData?.restaurantId;
-//     }
-//     let tables = await Orders.find({ status: "Ready" })
-//       .select({ _id: 1 })
-//       .populate({ path: "userId", select: { _id: 1 } })
-//       .populate({
-//         path: "bookedId",
-//         select: { _id: 1, status: 1 },
-//         populate: {
-//           path: "tableId",
-//           select: { nameOfTable: 1, capacity: 1, restaurantId: 1 },
-//         },
-//       });
-
-//     const filteredTables = tables.filter(
-//       (table) =>
-//         table.bookedId?.tableId?.restaurantId?.toString() ===
-//           req.restaurantId &&
-//         table.userId?._id?.toString() === req.userId &&
-//         table.bookedId?.status === "AlreadyOrdered"
-//     );
-//     let finishTables = filteredTables.map((filteredtable) => ({
-//       _id: filteredtable._id,
-//       bookingId: filteredtable.bookedId?._id,
-//       nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
-//       capacity: filteredtable.bookedId.tableId.capacity,
-//     }));
-
-//     if (!finishTables) {
-//       res.status(404).send({ message: `No table found.` });
-//     } else {
-//       res.status(200).json(finishTables);
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-// export const getOrderServedByServerId = async (req, res) => {
-//   try {
-//     const token = req.headers.authorization.split(" ")[1];
-//     if (token) {
-//       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
-//       req.userId = decodedData?.id;
-//       req.restaurantId = decodedData?.restaurantId;
-//     }
-//     let tables = await Orders.find({ status: "Ready" })
-//       .select({ _id: 1 })
-//       .populate({ path: "userId", select: { _id: 1 } })
-//       .populate({
-//         path: "bookedId",
-//         select: { _id: 1, status: 1 },
-//         populate: {
-//           path: "tableId",
-//           select: { nameOfTable: 1, capacity: 1, restaurantId: 1 },
-//         },
-//       });
-
-//     const filteredTables = tables.filter(
-//       (table) =>
-//         table.bookedId?.tableId?.restaurantId?.toString() ===
-//           req.restaurantId &&
-//         table.userId?._id?.toString() === req.userId &&
-//         table.bookedId?.status === "AlreadyOrdered"
-//     );
-//     let finishTables = filteredTables.map((filteredtable) => ({
-//       _id: filteredtable._id,
-//       bookingId: filteredtable.bookedId?._id,
-//       nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
-//       capacity: filteredtable.bookedId.tableId.capacity,
-//     }));
-
-//     if (!finishTables) {
-//       res.status(404).send({ message: `No table found.` });
-//     } else {
-//       res.status(200).json(finishTables);
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
