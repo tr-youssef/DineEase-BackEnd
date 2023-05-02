@@ -81,7 +81,6 @@ export const addOrder = async (req, res) => {
       { _id: newOrder.bookedId?.id },
       { status: "AlreadyOrdered" }
     );
-    console.log('Booked.findOneAndUpdate', Booked.findOneAndUpdate)
     res.status(201).json(orderCreated);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -188,7 +188,6 @@ export const getFilledTables = async (req, res) => {
       });
       
     const formattedTablesData = await Promise.all(formattedTables);
-    console.log('formattedTablesData', formattedTablesData)
 
     if (!formattedTablesData) {
       res.status(404).send({ message: `No table found.` });
