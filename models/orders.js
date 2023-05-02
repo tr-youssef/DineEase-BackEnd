@@ -34,7 +34,7 @@ export const ordersSchema = new mongoose.Schema({
   status: {
     type: String,
     allowNull: false,
-    enum: ["New", "Ready", "Empty",],
+    enum: ["New", "Ready", "Empty", "Served"],
     required: [true, "Sub total amount is required"],
   },
 });

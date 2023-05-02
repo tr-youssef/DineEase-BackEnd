@@ -56,7 +56,7 @@ export const updateBooked = async (req, res) => {
     };
 
     const newBooked = req.body;
-    const leavedAt = Date.now();
+    const leavedAt = Date.now();  
     const oldBooked = await Booked.updateOne(
       {
         _id: id,
@@ -75,6 +75,35 @@ export const updateBooked = async (req, res) => {
       res.status(201).json(BookedUpdated);
     } else {
       res.status(404).json({ message: `No Booked with id : ${id}` });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const updateBookedStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
+      req.userId = decodedData?.id;
+      req.restaurantId = decodedData?.restaurantId;
+    }
+    const newStatus = req.body.status;
+    const updateBooked = await Booked.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      { status: newStatus }
+    );
+    if (updateBooked) {
+      const newBooked = await Booked.findOne({
+        _id: id,
+      });
+      res.status(201).json(newBooked);
+    } else {
+      res.status(404).json({ message: `No order with id : ${id}` });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
