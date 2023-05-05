@@ -95,18 +95,12 @@ export const getUsers = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    const role = req.query.role;
     let users;
-    if (role) {
-      users = await User.find({
-        restaurantId: req.restaurantId,
-        role: role,
-      }).sort({ active: "desc" });
-    } else {
-      users = await User.find({
-        restaurantId: req.restaurantId,
-      }).sort({ active: "desc" });
-    }
+    users = await User.find({
+      restaurantId: req.restaurantId,
+      role: { $in: ["receptionist", "server", "chef"] },
+    }).sort({ active: "desc" });
+
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
