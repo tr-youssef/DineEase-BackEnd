@@ -77,10 +77,7 @@ export const addOrder = async (req, res) => {
       status: newOrder.status,
     });
 
-    await Booked.findOneAndUpdate(
-      { _id: newOrder.bookedId?.id },
-      { status: "AlreadyOrdered" }
-    );
+    await Booked.findOneAndUpdate({ _id: newOrder.bookedId?.id }, { status: "AlreadyOrdered" });
     res.status(201).json(orderCreated);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -98,16 +95,16 @@ export const getAlreadyServedTablesByServerId = async (req, res) => {
     let tables = await Orders.find({ status: "Served" })
       .select({ _id: 1 })
       .populate({ path: "userId", select: { _id: 1 } })
-      .populate({ path: "bookedId", select: { _id: 1 }, populate: { path: "tableId", select: { nameOfTable: 1, capacity: 1, restaurantId: 1 } } });
-    const filteredTables = tables.filter((table) => table.bookedId.tableId.restaurantId.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
+      .populate({ path: "bookedId", select: { _id: 1, status: 1 }, populate: { path: "tableId", select: { nameOfTable: 1, capacity: 1, restaurantId: 1 } } });
+    const filteredTables = tables.filter((table) => table.bookedId.tableId.restaurantId.toString() === req.restaurantId && table.userId._id.toString() === req.userId && table.bookedId.status === "AlreadyOrdered");
     const finishTables = filteredTables.map((filteredtable) => ({
       _id: filteredtable._id,
       bookedId: filteredtable.bookedId._id,
-      tableId: filteredtable.bookedId.tableId._id, 
+      tableId: filteredtable.bookedId.tableId._id,
       nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
-      capacity: filteredtable.bookedId.tableId.capacity
+      capacity: filteredtable.bookedId.tableId.capacity,
     }));
-    
+
     if (!finishTables) {
       res.status(404).send({ message: `No table found.` });
     } else {
@@ -163,11 +160,11 @@ export const getAlreadyOrderedTablesByServerId = async (req, res) => {
     const finishTables = filteredTables.map((filteredtable) => ({
       _id: filteredtable._id,
       bookedId: filteredtable.bookedId._id,
-      tableId: filteredtable.bookedId.tableId._id, 
+      tableId: filteredtable.bookedId.tableId._id,
       nameOfTable: filteredtable.bookedId.tableId.nameOfTable,
-      capacity: filteredtable.bookedId.tableId.capacity
+      capacity: filteredtable.bookedId.tableId.capacity,
     }));
-    
+
     if (!finishTables) {
       res.status(404).send({ message: `No table found.` });
     } else {
@@ -197,15 +194,8 @@ export const getOrderReadyByServerId = async (req, res) => {
           select: { nameOfTable: 1, capacity: 1, restaurantId: 1 },
         },
       });
-   
 
-    const filteredTables = tables.filter(
-      (table) =>
-        table.bookedId?.tableId?.restaurantId?.toString() ===
-          req.restaurantId &&
-        table.userId?._id?.toString() === req.userId &&
-        table.bookedId?.status === "AlreadyOrdered"
-    );
+    const filteredTables = tables.filter((table) => table.bookedId?.tableId?.restaurantId?.toString() === req.restaurantId && table.userId?._id?.toString() === req.userId && table.bookedId?.status === "AlreadyOrdered");
 
     if (!filteredTables) {
       res.status(404).send({ message: `No table found.` });
