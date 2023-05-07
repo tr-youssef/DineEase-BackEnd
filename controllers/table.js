@@ -138,7 +138,7 @@ export const getAvailableTables = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    let tables = await Table.find({ status: "available" }).populate({ path: "userId" }).populate({ path: "restaurantId" });
+    let tables = await Table.find({ status: "Available" }).populate({ path: "userId" }).populate({ path: "restaurantId" });
     const filteredTables = tables.filter((table) => table.restaurantId._id.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
     if (!filteredTables) {
       res.status(404).send({ message: `No table found.` });
