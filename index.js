@@ -14,7 +14,6 @@ import uploadRoutes from "./routes/upload.js";
 import ordersRoutes from "./routes/orders.js";
 import bookedRoutes from "./routes/booked.js";
 import restaurantsRoutes from "./routes/restaurants.js";
-import product from "./api/product.js";
 
 const app = express();
 
@@ -23,12 +22,13 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 
 app.use(express.static("public"));
 app.use(cors());
+dotenv.config();
 const PORT = process.env.PORT || 5001;
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5175",
+    origin: process.env.CLIENT,
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
     credentials: true,
@@ -49,12 +49,9 @@ io.on("connection", (socket) => {
   });
 });
 
-dotenv.config();
-
-app.get("/api/", (req, res) => {
+app.get("/", (req, res) => {
   res.send({ message: "Hello World!" });
 });
-app.use("/api/product", product);
 app.use("/users", usersRouter);
 app.use("/categories", categoriesRoutes);
 app.use("/items", itemsRoutes);
