@@ -89,7 +89,6 @@ export const getUsersById = async (req, res) => {
 export const getUsers = async (req, res) => {
   const role = req.query.role ? req.query.role : ["receptionist", "server", "chef"];
   const active = req.query.role ? true : [true, false];
-  console.log("role", role);
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
