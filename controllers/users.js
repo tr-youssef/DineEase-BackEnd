@@ -88,6 +88,8 @@ export const getUsersById = async (req, res) => {
 };
 
 export const getUsers = async (req, res) => {
+  const role = req.query.role ? req.query.role : ["receptionist", "server", "chef"];
+  console.log("role", role);
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
@@ -98,7 +100,7 @@ export const getUsers = async (req, res) => {
     let users;
     users = await User.find({
       restaurantId: req.restaurantId,
-      role: { $in: ["receptionist", "server", "chef"] },
+      role: { $in: role },
     }).sort({ active: "desc" });
 
     res.status(200).json(users);
