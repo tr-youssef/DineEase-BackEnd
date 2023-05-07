@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
 import User from "../models/users.js";
 
 dotenv.config();
@@ -89,6 +88,7 @@ export const getUsersById = async (req, res) => {
 
 export const getUsers = async (req, res) => {
   const role = req.query.role ? req.query.role : ["receptionist", "server", "chef"];
+  const active = req.query.role ? true : [true, false];
   console.log("role", role);
   try {
     const token = req.headers.authorization.split(" ")[1];
@@ -101,6 +101,7 @@ export const getUsers = async (req, res) => {
     users = await User.find({
       restaurantId: req.restaurantId,
       role: { $in: role },
+      active: { $in: active },
     }).sort({ active: "desc" });
 
     res.status(200).json(users);
