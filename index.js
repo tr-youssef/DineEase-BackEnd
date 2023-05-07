@@ -46,6 +46,11 @@ io.on("connection", (socket) => {
       populate: { path: "tableId", populate: { path: "restaurantId" } },
     });
     io.to("orders").emit("orders", orders);
+    const ordersReady = await Orders.find({ status: "Ready" }).populate({
+      path: "bookedId",
+      populate: { path: "tableId", populate: { path: "restaurantId" } },
+    });
+    io.to("orders").emit("ordersReady", ordersReady);
   });
 });
 

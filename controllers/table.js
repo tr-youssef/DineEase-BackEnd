@@ -28,7 +28,7 @@ export const updateTable = async (req, res) => {
       let decodedData = jwt.verify(token, process.env.PRIVATE_KEY);
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
-    };
+    }
     const newTable = req.body;
     const oldTable = await Table.updateOne(
       {
@@ -139,8 +139,8 @@ export const getAvailableTables = async (req, res) => {
       req.restaurantId = decodedData?.restaurantId;
     }
     let tables = await Table.find({ status: "available" }).populate({ path: "userId" }).populate({ path: "restaurantId" });
-    // const filteredTables = tables.filter((table) => table.restaurantId._id.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
-    if (!tables) {
+    const filteredTables = tables.filter((table) => table.restaurantId._id.toString() === req.restaurantId && table.userId._id.toString() === req.userId);
+    if (!filteredTables) {
       res.status(404).send({ message: `No table found.` });
     } else {
       res.status(200).json(tables);
@@ -158,35 +158,33 @@ export const getFilledTables = async (req, res) => {
       req.userId = decodedData?.id;
       req.restaurantId = decodedData?.restaurantId;
     }
-    let tables = await Booked.find({ status: "NewClient" })
+    let tables = await Booked.find({ $or: [{ status: "NewClient" }, { status: "AlreadyOrdered" }] })
       .select({ _id: 1, bookedAt: 1 })
       .populate({ path: "tableId", select: { restaurantId: 1, nameOfTable: 1, capacity: 1 }, populate: { path: "userId", select: { userId: 1 } } });
 
-      const formattedTables = tables.map(async (table) => {
+    const formattedTables = tables.map(async (table) => {
+      const bookedAt = new Date(table.bookedAt);
+      const formattedTime = bookedAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+
+      const bookedTables = await Booked.find({ status: "Payed" }).select({ bookedAt: 1, leavedAt: 1, tableId: 1 });
+      let totalWaitTime = 0;
+      let totalTables = 0;
+      for (let table of bookedTables) {
         const bookedAt = new Date(table.bookedAt);
-        const formattedTime = bookedAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
-      
-      
-        const bookedTables = await Booked.find({ status: "Payed" })
-          .select({ bookedAt: 1, leavedAt: 1, tableId: 1 });
-        let totalWaitTime = 0;
-        let totalTables = 0;
-        for (let table of bookedTables) {
-          const bookedAt = new Date(table.bookedAt);
-          const leavedAt = new Date(table.leavedAt);
-          const waitTime = Math.round((leavedAt - bookedAt) / 1000);
-          totalWaitTime += waitTime;
-          totalTables++;
-        }
-        const averageWaitTime = Math.round(totalWaitTime / totalTables);
-      
-        const waitingTimeInSeconds = bookedAt.getTime() + (averageWaitTime * 1000);
-        const waitingTime = new Date(waitingTimeInSeconds);
-        const waitingTimeText = waitingTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
-      
-        return { _id: table._id, nameOfTable: table.tableId.nameOfTable, capacity: table.tableId.capacity, bookedAt: `${formattedTime}`, waitingTime: waitingTimeText };
-      });
-      
+        const leavedAt = new Date(table.leavedAt);
+        const waitTime = Math.round((leavedAt - bookedAt) / 1000);
+        totalWaitTime += waitTime;
+        totalTables++;
+      }
+      const averageWaitTime = Math.round(totalWaitTime / totalTables);
+
+      const waitingTimeInSeconds = bookedAt.getTime() + averageWaitTime * 1000;
+      const waitingTime = new Date(waitingTimeInSeconds);
+      const waitingTimeText = waitingTime.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+
+      return { _id: table._id, nameOfTable: table.tableId.nameOfTable, capacity: table.tableId.capacity, bookedAt: `${formattedTime}`, waitingTime: waitingTimeText };
+    });
+
     const formattedTablesData = await Promise.all(formattedTables);
 
     if (!formattedTablesData) {
