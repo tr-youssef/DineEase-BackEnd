@@ -14,6 +14,7 @@ import uploadRoutes from "./routes/upload.js";
 import ordersRoutes from "./routes/orders.js";
 import bookedRoutes from "./routes/booked.js";
 import restaurantsRoutes from "./routes/restaurants.js";
+import product from "./api/product.js";
 
 const app = express();
 
@@ -53,6 +54,7 @@ dotenv.config();
 app.get("/api/", (req, res) => {
   res.send({ message: "Hello World!" });
 });
+app.use("/api/product", product);
 app.use("/users", usersRouter);
 app.use("/categories", categoriesRoutes);
 app.use("/items", itemsRoutes);
