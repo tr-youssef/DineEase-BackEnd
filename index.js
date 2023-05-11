@@ -2,7 +2,6 @@ import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
-import serverless from "serverless-http";
 import http from "http";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -67,7 +66,6 @@ app.use("/tables", tableRoutes);
 app.use("/booked", bookedRoutes);
 app.use("/restaurant", restaurantsRoutes);
 
-serverless(app);
 mongoose
   .connect(process.env.CONNECTION_URL, {
     useNewUrlParser: true,
